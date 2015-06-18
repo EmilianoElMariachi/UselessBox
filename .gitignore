@@ -1,0 +1,20 @@
+ #MPLAB / HI-TECH
+*.obj
+*.cof
+*.hex
+*.hxl
+*.rlf
+*.mcw
+*.sdb
+*.as
+*.p1
+*.pre
+*.map
+*.lst
+*.dep
+*.sym
+*.mcs
+funclist
+
+#EAGLE LAYOUT EDITOR
+*.s#*
