@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "const.h"
+#include "random.h"
+
 __CONFIG(FOSC_INTOSCIO & MCLRE_ON & WDTE_OFF & PWRTE_ON); // & MCLRE_OFF
  
 #define _XTAL_FREQ 4000000
@@ -22,14 +25,7 @@ void init(){
 
 	T1CON = 0b00110000; //Setup Timer 1 with prescale 8
 
-	//Load last saved random seed
-	unsigned int savedSeed = ((unsigned int)eeprom_read(RAND_SEED_ADDR_MSB)) << 8 | eeprom_read(RAND_SEED_ADDR_LSB);
-	srand(savedSeed);
-
-	savedSeed ++;
-	unsigned char* pSavedSeed = (unsigned char*)&savedSeed;
-	eeprom_write(RAND_SEED_ADDR_LSB, pSavedSeed[0]);
-	eeprom_write(RAND_SEED_ADDR_MSB, pSavedSeed[1]);
+	initRandom();
 }
 
 void goOut(){
@@ -67,7 +63,7 @@ void main(void){
 
 	stop();
 
-	int delayms = (rand() / 32767.0) * 3000.0;  //Get random number between 0 and 5000
+	int delayms = (int)((random() / 32767.0) * MAX_START_DELAY);  //Get random number between 0 and 5000
 
 	
 	if(SWITCH_ON){
