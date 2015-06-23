@@ -29,14 +29,14 @@ void init(){
 	savedSeed ++;
 	unsigned char* pSavedSeed = (unsigned char*)&savedSeed;
 	eeprom_write(RAND_SEED_ADDR_LSB, pSavedSeed[0]);
-	eeprom_write(RAND_SEED_ADDR_LSB, pSavedSeed[1]);
-}
-
-void goIn(){
-	PORTA = ((PORTA | 0b01000000) & 0b01111111);
+	eeprom_write(RAND_SEED_ADDR_MSB, pSavedSeed[1]);
 }
 
 void goOut(){
+	PORTA = ((PORTA | 0b01000000) & 0b01111111);
+}
+
+void goIn(){
 	PORTA = ((PORTA | 0b10000000) & 0b10111111);
 }
 
@@ -44,18 +44,20 @@ void stop(){
 	PORTA = (PORTA | 0b11000000);
 }
 
-void delay(unsigned int delay){
+void delay_ms(unsigned int delayms){
 	TMR1IF = 0;
-	TMR1 = delay;
 	TMR1IE = 1; //Activate Timer1 interrupts
 	GIE = 1; //Activate global interrupts
 
-	TMR1ON = 1; //Starts timer
+	for(int i = 0; i < delayms; i++){
+		TMR1 = 65420;//6565535 - 125 = 65410 for 1ms loop + some instructions
 
-	while(!TMR1IF); //Wait for timer interrupt
-
-	TMR1ON = 0;
-	TMR1IF = 0;
+		TMR1ON = 1; //Starts timer
+	
+		while(!TMR1IF); //Wait for timer interrupt
+		TMR1ON = 0; //Stops timer
+		TMR1IF = 0;
+	}
 }
 
 
@@ -65,9 +67,12 @@ void main(void){
 
 	stop();
 
-	int delay_ms = (rand() / 32767.0) * 5000.0;  //Get random number between 0 and 5000
+	int delayms = (rand() / 32767.0) * 3000.0;  //Get random number between 0 and 5000
 
-	delay(delay_ms);
+	
+	if(SWITCH_ON){
+		delay_ms(delayms);
+	}
 
 	while (1){
 
